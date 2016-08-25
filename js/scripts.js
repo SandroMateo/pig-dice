@@ -23,6 +23,10 @@ Player.prototype.hold = function() {
   this.currently = 0;
 }
 
+Player.prototype.compRoll = function() {
+  this.roll();
+}
+
 $(function() {
   function playerTurn(turnPlayer, otherPlayer) {
     $("#" + otherPlayer + "Turn").text("");
@@ -30,7 +34,36 @@ $(function() {
     $("." + otherPlayer).removeClass("background");
     $("." + turnPlayer).addClass("background");
   }
-
+  function compRoll (dieRoll, die1, currently, total, turnPlayer, otherPlayer) {
+    console.log(total);
+    setTimeout(function() {
+      dieRoll= die1[Math.floor(Math.random()*5)];
+      if(currently < 15 && dieRoll !== 1) {
+        currently += dieRoll;
+        $(".dieValue").text(dieRoll)
+        $("#player1Currently").text(currently);
+        compRoll (dieRoll, die1, currently,total, turnPlayer, otherPlayer)
+      }
+      else if(dieRoll === 1) {
+        currently = 0;
+        counter++;
+        $(".dieValue").text(dieRoll)
+        $("#player1Currently").text(currently);
+        playerTurn(turnPlayer,otherPlayer)
+      }
+      else {
+        currently += dieRoll;
+        total += currently;
+        currently = 0;
+        counter++;
+        $(".dieValue").text(dieRoll)
+        $("#player1Currently").text(currently);
+        $("#player1Total").text(total);
+        playerTurn(turnPlayer,otherPlayer)
+        return total;
+      }
+    }, 1000);
+  }
   $("form").submit(function(event) {
     event.preventDefault();
     var name0 = $("#name0").val();
@@ -59,42 +92,34 @@ $(function() {
           $("#player0Currently").text(player0.currently);
           if (player0.dieRoll === 1) {
             playerTurn("player1", "player0");
-            player1.roll();
-            $(".dieValue").text(player1.dieRoll);
-            $("#player1Currently").text(player1.currently);
+            // player1.roll();
+            // $(".dieValue").text(player1.dieRoll);
+            // $("#player1Currently").text(player1.currently);
+            var totally = compRoll(player1.dieRoll, player1.die1, player1.currently, player1.total, "player0", "player1");
+            console.log(player1.total);
+            if(totally > 0) {
+              player1.total += totally;
+            }
             // while(player1.dieRoll !== 1 && player1.currently < 15) {
-            //     player1.roll();
+            //     setTimeout(player1.roll(), 1000);
             //     $(".dieValue").text(player1.dieRoll);
             //     $("#player1Currently").text(player1.currently);
-            //   }
+            //
             // }
-            debugger;
-            function rolling (dieRoll, currently) {
-                setTimeout(function() {
-                  debugger;
-                  player1.roll();
-                  $(".dieValue").text(dieRoll);
-                  $("#player1Currently").text(currently);
-                }, 1000);
-              if(dieRoll !== 1 && currently < 15) {
-                rolling(dieRoll, currently);
-              }
-            }
-            if(player1.currently !== 1) {
-              rolling(player1.dieRoll, player1.currently);
-            }
-            if(player1.dieRoll !== 1) {
-              player1.hold();
-              counter++;
-            }
-            $("#player1Total").text(player1.total);
-            $("#player1Currently").text(player1.currently);
-            playerTurn("player0", "player1");
-          }
-          if(player0.total + player0.currently >= 100) {
-            $("#gameScreen").slideUp();
-            $("#player0Win").show()
-          }
+
+            // if(player1.dieRoll !== 1) {
+            //   player1.hold();
+            //   counter++;
+            // }
+            // $("#player1Total").text(player1.total);
+            // $("#player1Currently").text(player1.currently);
+            // playerTurn("player0", "player1");
+           }
+          // if(player0.total + player0.currently >= 100) {
+          //   $("#gameScreen").slideUp();
+          //   $("#player0Win").show()
+          // }
+
         }
       });
       $("#holdButton").click(function() {
@@ -102,21 +127,26 @@ $(function() {
         $("#player0Currently").text(player0.currently);
         $("#player0Total").text(player0.total);
         playerTurn("player1", "player0");
-        player1.roll();
-        $(".dieValue").text(player1.dieRoll);
-        $("#player1Currently").text(player1.currently);
-        while(player1.dieRoll !== 1 && player1.currently < 15) {
-          player1.roll();
-          $(".dieValue").text(player1.dieRoll);
-          $("#player1Currently").text(player1.currently);
+        // player1.roll();
+        // $(".dieValue").text(player1.dieRoll);
+        // $("#player1Currently").text(player1.currently);
+        var totally = compRoll(player1.dieRoll, player1.die1, player1.currently, player1.total, "player0", "player1");
+        console.log(player1.total);
+        if(totally > 0 ) {
+          player1.total += totally;
         }
-        if(player1.dieRoll !== 1) {
-          player1.hold();
-          counter++;
-        }
-        $("#player1Total").text(player1.total);
-        $("#player1Currently").text(player1.currently)
-        playerTurn("player0", "player1");
+        // while(player1.dieRoll !== 1 && player1.currently < 15) {
+        //   player1.roll();
+        //   $(".dieValue").text(player1.dieRoll);
+        //   $("#player1Currently").text(player1.currently);
+        // }
+        // if(player1.dieRoll !== 1) {
+        //   player1.hold();
+        //   counter++;
+        // }
+        // $("#player1Total").text(player1.total);
+        // $("#player1Currently").text(player1.currently)
+        // playerTurn("player0", "player1");
         if(player0.total >= 100) {
           $("#gameScreen").slideUp();
           $("#player0Win").show()
